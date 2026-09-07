@@ -15,9 +15,9 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y zip unzip libffi-dev libssl-dev
+          sudo apt install -y python3-pip zip unzip openjdk-17-jdk libffi-dev libssl-dev libbz2-dev libsqlite3-dev libncurses5-dev libncursesw5-dev zlib1g-dev libltdl-dev libgdbm-dev liblzma-dev tk-dev uuid-dev libreadline-dev
           pip install --upgrade pip
-          pip install buildozer cython==0.29.33
+          pip install buildozer cython==0.29.36
       - name: Accept licenses
         run: yes | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --licenses || true
       - name: Build APK
