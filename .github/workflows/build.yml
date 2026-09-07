@@ -5,11 +5,15 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
-      - uses: ArtemSBulgakov/buildozer-action@v1
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: digreatbrian/buildozer-action@v2
         with:
           command: buildozer android debug
-          buildozer_version: master
+          buildozer_version: stable
       - uses: actions/upload-artifact@v4
         with:
           name: THEX-APK
-          path: ./bin/*.apk
+          path: bin/*.apk
