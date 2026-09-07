@@ -8,10 +8,12 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-      - run: pip install buildozer cython==0.29.33
-      - run: sudo apt update && sudo apt install -y openjdk-17-jdk zip
+      - run: pip install buildozer
+      - run: pip install cython
+      - run: sudo apt update
+      - run: sudo apt install -y openjdk-17-jdk
       - run: buildozer android debug
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: APK
           path: bin/*.apk
