@@ -13,3 +13,8 @@ android.accept_sdk_license_agreement = True
 
 [buildozer]
 log_level = 2
+android.api = 34
+android.minapi = 21
+android.build_tools_version = 34.0.0
+android.sdk_path = /usr/local/lib/android/sdk
+android.accept_sdk_license_agreements = True
