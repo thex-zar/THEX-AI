@@ -1,6 +1,11 @@
-kivy.app import App
-kivy.uix.label import Label
-class THEX(App):
-    def build(self):
-        return Label(text='THEX V2.5')
-THEX().run()
+[app]
+title = THEX AI
+package.name = thexai
+package.domain = com.thex.ai
+source.dir =.
+version = 1.0
+requirements = python3,kivy
+orientation = portrait
+
+[buildozer]
+log_level = 2
