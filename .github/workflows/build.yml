@@ -17,10 +17,17 @@ jobs:
           sudo apt update
           sudo apt install -y libffi-dev libssl-dev aidl
           pip install cython==0.29.36 buildozer
-      - name: Accept licenses and install build-tools
+      - name: Install Android SDK packages
         run: |
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "build-tools;33.0.2" "platforms;android-33"
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "build-tools;33.0.2" "build-tools;37.0.0" "platforms;android-33" "platform-tools"
+      - name: Fix aidl
+        run: |
+          mkdir -p $HOME/.buildozer/android/platform/android-sdk/build-tools/37.0.0
+          cp /usr/bin/aidl $HOME/.buildozer/android/platform/android-sdk/build-tools/37.0.0/aidl || true
+          cp /usr/bin/aidl $ANDROID_HOME/build-tools/37.0.0/aidl || true
+          cp /usr/bin/aidl $ANDROID_HOME/build-tools/33.0.2/aidl || true
+          chmod +x $HOME/.buildozer/android/platform/android-sdk/build-tools/37.0.0/aidl || true
       - name: Build APK
         run: |
           rm -rf .buildozer
