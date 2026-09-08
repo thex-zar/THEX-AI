@@ -17,20 +17,16 @@ jobs:
           sudo apt update
           sudo apt install -y libffi-dev libssl-dev aidl
           pip install cython==0.29.36 buildozer
-      - name: Install Android SDK packages
+      - name: Accept licenses and install SDK
         run: |
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "build-tools;33.0.2" "build-tools;37.0.0" "platforms;android-33" "platform-tools"
-      - name: Fix aidl
-        run: |
-          mkdir -p $HOME/.buildozer/android/platform/android-sdk/build-tools/37.0.0
-          cp /usr/bin/aidl $HOME/.buildozer/android/platform/android-sdk/build-tools/37.0.0/aidl || true
-          cp /usr/bin/aidl $ANDROID_HOME/build-tools/37.0.0/aidl || true
-          cp /usr/bin/aidl $ANDROID_HOME/build-tools/33.0.2/aidl || true
-          chmod +x $HOME/.buildozer/android/platform/android-sdk/build-tools/37.0.0/aidl || true
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "build-tools;33.0.2" "build-tools;37.0.0" "platforms;android-33" "ndk;25.1.8937393"
+          # Fix aidl for 37.0.0 bug
+          sudo cp /usr/bin/aidl $ANDROID_HOME/build-tools/37.0.0/aidl
+          sudo cp /usr/bin/aidl $ANDROID_HOME/build-tools/33.0.2/aidl
+          sudo chmod +x $ANDROID_HOME/build-tools/37.0.0/aidl $ANDROID_HOME/build-tools/33.0.2/aidl
       - name: Build APK
         run: |
-          rm -rf .buildozer
           buildozer android debug
       - name: Upload APK
         uses: actions/upload-artifact@v4
