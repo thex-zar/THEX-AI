@@ -15,16 +15,10 @@ jobs:
       - name: Install deps
         run: |
           sudo apt update
-          sudo apt install -y libffi-dev libssl-dev python3-pip
+          sudo apt install -y libffi-dev libssl-dev
+          pip install --upgrade pip
           pip install cython==0.29.36 buildozer
-          pip install kivy==2.3.0
-      - name: Accept licenses & install build-tools
-        run: |
-          mkdir -p $HOME/.android
-          touch $HOME/.android/repositories.cfg
-          yes | sdkmanager --licenses
-          sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
-      - name: Build
+      - name: Build APK
         run: |
           buildozer android debug
       - name: Upload APK
