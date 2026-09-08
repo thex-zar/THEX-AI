@@ -17,18 +17,29 @@ jobs:
           sudo apt update
           sudo apt install -y libffi-dev libssl-dev aidl
           pip install cython==0.29.36 buildozer==1.4.0
-      - name: Build APK with fix
+
+      - name: Pre-install Android SDK 37 fix
         run: |
-          buildozer android debug || true
-          yes | $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/.buildozer/android/platform/android-sdk "build-tools;33.0.2" "build-tools;37.0.0" "platforms;android-33" || true
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "build-tools;33.0.2" "build-tools;37.0.0" "platforms;android-33" "platform-tools"
+          sudo cp /usr/bin/aidl $ANDROID_HOME/build-tools/37.0.0/aidl
+          sudo cp /usr/bin/aidl $ANDROID_HOME/build-tools/33.0.2/aidl
+          sudo chmod +x $ANDROID_HOME/build-tools/37.0.0/aidl $ANDROID_HOME/build-tools/33.0.2/aidl
+          # Copy everything to where Buildozer looks
+          mkdir -p $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest
+          cp -r $ANDROID_HOME/cmdline-tools/latest/* $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/ || true
           mkdir -p $HOME/.buildozer/android/platform/android-sdk/build-tools/37.0.0
           mkdir -p $HOME/.buildozer/android/platform/android-sdk/build-tools/33.0.2
-          cp /usr/bin/aidl $HOME/.buildozer/android/platform/android-sdk/build-tools/37.0.0/aidl || true
-          cp /usr/bin/aidl $HOME/.buildozer/android/platform/android-sdk/build-tools/33.0.2/aidl || true
-          chmod +x $HOME/.buildozer/android/platform/android-sdk/build-tools/37.0.0/aidl || true
-          chmod +x $HOME/.buildozer/android/platform/android-sdk/build-tools/33.0.2/aidl || true
+          cp -r $ANDROID_HOME/build-tools/37.0.0/* $HOME/.buildozer/android/platform/android-sdk/build-tools/37.0.0/ || true
+          cp -r $ANDROID_HOME/build-tools/33.0.2/* $HOME/.buildozer/android/platform/android-sdk/build-tools/33.0.2/ || true
+          mkdir -p $HOME/.buildozer/android/platform/android-sdk/platforms
+          cp -r $ANDROID_HOME/platforms/android-33 $HOME/.buildozer/android/platform/android-sdk/platforms/ || true
+          yes | $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
+
+      - name: Build APK
+        run: |
           buildozer android debug
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
