@@ -13,25 +13,24 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Install deps
+      - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y zip unzip libffi-dev libssl-dev libbz2-dev
+          sudo apt install -y zip unzip libffi-dev libssl-dev libbz2-dev libsqlite3-dev
+          pip install --upgrade pip
           pip install cython==0.29.36 buildozer
 
-      - name: Build with log capture
+      - name: Accept licenses
         run: |
+          yes | sdkmanager --licenses || true
           yes | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          buildozer android debug 2>&1 | tee my_build.txt; echo "DONE"
-          echo "=== LAST 150 LINES OF ERROR ==="
-          tail -n 150 my_build.txt
-          echo "=== END ==="
-          # fail if no apk
-          ls bin/*.apk
 
-      - name: Upload log snippet
-        if: always()
+      - name: Build APK
+        run: |
+          buildozer android debug
+
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: my_build-log
-          path: my_build.txt
+          name: THEX-APK
+          path: bin/*.apk
