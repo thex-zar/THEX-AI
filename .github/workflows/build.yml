@@ -12,14 +12,13 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-
       - name: Install Deps + FIX 37.0.0
         run: |
           sudo apt update
           sudo apt install -y aidl libffi-dev libssl-dev
           pip install cython==0.29.36 buildozer==1.5.0
-          yes | sdkmanager --licenses
-          sdkmanager "build-tools;37.0.0" "build-tools;33.0.2" "platforms;android-33" "platform-tools"
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "build-tools;37.0.0" "build-tools;33.0.2" "platforms;android-33" "platform-tools"
           sudo cp /usr/bin/aidl $ANDROID_HOME/build-tools/37.0.0/aidl || true
           sudo cp /usr/bin/aidl $ANDROID_HOME/build-tools/33.0.2/aidl || true
           sudo chmod +x $ANDROID_HOME/build-tools/37.0.0/aidl $ANDROID_HOME/build-tools/33.0.2/aidl || true
@@ -27,11 +26,9 @@ jobs:
           cp -r $ANDROID_HOME/build-tools/37.0.0/* $HOME/.buildozer/android/platform/android-sdk/build-tools/37.0.0/ || true
           mkdir -p $HOME/.buildozer/android/platform/android-sdk/build-tools/33.0.2
           cp -r $ANDROID_HOME/build-tools/33.0.2/* $HOME/.buildozer/android/platform/android-sdk/build-tools/33.0.2/ || true
-          yes | sdkmanager --licenses || true
-
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
       - name: Build APK
         run: buildozer -v android debug
-
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
