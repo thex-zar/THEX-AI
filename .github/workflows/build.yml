@@ -27,7 +27,10 @@ jobs:
           mkdir -p ~/.buildozer/android/platform
           ln -s $ANDROID_HOME ~/.buildozer/android/platform/android-sdk
           mkdir -p $ANDROID_HOME/tools/bin
-          cp $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager $ANDROID_HOME/tools/bin/ || true
+          echo '#!/bin/bash' > $ANDROID_HOME/tools/bin/sdkmanager
+          echo 'exec $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "$@"' >> $ANDROID_HOME/tools/bin/sdkmanager
+          chmod +x $ANDROID_HOME/tools/bin/sdkmanager
+          ln -sf $ANDROID_HOME/cmdline-tools/latest/lib $ANDROID_HOME/tools/lib 2>/dev/null || true
           yes | $SDK --licenses || true
       - name: Build APK
         run: buildozer -v android debug
