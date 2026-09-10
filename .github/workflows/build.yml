@@ -13,11 +13,14 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-      - name: Fix Android SDK
+      - name: Fix Android SDK + Python bug
         run: |
           sudo apt update
           sudo apt install -y aidl libffi-dev libssl-dev
           pip install cython==0.29.36 buildozer==1.5.0
+          # Fix python3 to be 3.10 not 3.14
+          sudo ln -sf /opt/hostedtoolcache/Python/3.10.21/x64/bin/python /usr/local/bin/python3
+          sudo ln -sf /opt/hostedtoolcache/Python/3.10.21/x64/bin/python /usr/bin/python3.10 || true
           SDK="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
           yes | $SDK --licenses
           $SDK "build-tools;33.0.2" "platforms;android-33" "platform-tools"
@@ -32,6 +35,12 @@ jobs:
           chmod +x $ANDROID_HOME/tools/bin/sdkmanager
           ln -sf $ANDROID_HOME/cmdline-tools/latest/lib $ANDROID_HOME/tools/lib 2>/dev/null || true
           yes | $SDK --licenses || true
+          # PRE-CLONE and PATCH p4a pip bug
+          rm -rf ~/.buildozer/android/platform/python-for-android
+          git clone https://github.com/kivy/python-for-android.git ~/.buildozer/android/platform/python-for-android
+          sed -i 's/pip install -U pip/pip install pip==23.3.1/g' ~/.buildozer/android/platform/python-for-android/pythonforandroid/build.py || true
+          sed -i 's/--upgrade pip/==23.3.1/g' ~/.buildozer/android/platform/python-for-android/pythonforandroid/build.py || true
+          find ~/.buildozer/android/platform/python-for-android -type f -name "*.py" -exec sed -i 's/pip install -U pip/pip install pip==23.3.1/g' {} \; || true
       - name: Build APK
         run: buildozer -v android debug
       - name: Upload APK
