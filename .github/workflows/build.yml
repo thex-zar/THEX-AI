@@ -1,18 +1,3 @@
-name: build
-on: [push]
-jobs:
-  build:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-      - uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
       - name: Fix Android SDK
         run: |
           sudo apt update
@@ -23,15 +8,14 @@ jobs:
           $SDK "build-tools;33.0.2" "platforms;android-33" "platform-tools"
           sudo cp /usr/bin/aidl $ANDROID_HOME/build-tools/33.0.2/aidl
           sudo chmod +x $ANDROID_HOME/build-tools/33.0.2/aidl
-          mkdir -p ~/.buildozer/android/platform/android-sdk/build-tools/33.0.2
-          cp -r $ANDROID_HOME/build-tools/33.0.2/* ~/.buildozer/android/platform/android-sdk/build-tools/33.0.2/
-          yes | $SDK --licenses
-
-      - name: Build APK
-        run: buildozer -v android debug
-
-      - name: Upload
-        uses: actions/upload-artifact@v4
-        with:
-          name: THEX-APK
-          path: bin/*.apk
+          # --- THE BRIDGE BUILDER ---
+          # Delete buildozer's broken SDK and link it to GitHub's real SDK
+          rm -rf ~/.buildozer/android/platform/android-sdk
+          mkdir -p ~/.buildozer/android/platform
+          ln -s $ANDROID_HOME ~/.buildozer/android/platform/android-sdk
+          # Also create old tools/bin path that buildozer expects
+          mkdir -p $ANDROID_HOME/tools/bin
+          cp $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager $ANDROID_HOME/tools/bin/ 2>/dev/null || true
+          cp -r $ANDROID_HOME/cmdline-tools/latest/lib $ANDROID_HOME/tools/bin/../ 2>/dev/null || true
+          # Double license accept
+          yes | $SDK --licenses || true
