@@ -12,13 +12,13 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+
       - name: Install Buildozer
         run: |
           sudo apt update
           sudo apt install -y aidl libffi-dev libssl-dev
           python -m pip install --upgrade pip==23.3.1
           pip install cython==0.29.36 buildozer==1.5.0
-          python3 --version
           rm -rf ~/.buildozer
           mkdir -p ~/.buildozer/android/platform
           ln -s $ANDROID_HOME ~/.buildozer/android/platform/android-sdk
@@ -29,16 +29,17 @@ jobs:
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "build-tools;33.0.2" "platforms;android-33" "platform-tools"
           sudo cp /usr/bin/aidl $ANDROID_HOME/build-tools/33.0.2/aidl || true
+
       - name: Patch P4A
         run: |
-          # Pre-download p4a v2024.1.21 and patch the pip bug
           git clone https://github.com/kivy/python-for-android.git ~/.buildozer/android/platform/python-for-android
           cd ~/.buildozer/android/platform/python-for-android
           git checkout v2024.1.21
           sed -i 's/pip install -U pip/pip install pip==23.3.1/g' pythonforandroid/build.py
-          grep -n "pip install" pythonforandroid/build.py | head -20
+
       - name: Build APK
         run: buildozer android debug
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
